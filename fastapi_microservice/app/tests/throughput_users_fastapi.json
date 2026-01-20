@@ -1,0 +1,9 @@
+{
+  "endpoint": "/api/users/",
+  "total_requests": 200,
+  "concurrency": 20,
+  "ok": 200,
+  "fail": 0,
+  "elapsed_s": 16.788,
+  "throughput_rps": 11.91
+}
