@@ -12,7 +12,8 @@ dependencies = [
     "djangorestframework (>=3.16.1,<4.0.0)",
     "uvicorn[standard] (>=0.40.0,<0.41.0)",
     "locust (>=2.43.0,<3.0.0)",
-    "psycopg[binary] (>=3.3.2,<4.0.0)"
+    "psycopg[binary] (>=3.3.2,<4.0.0)",
+    "adrf (>=0.1.12,<0.2.0)"
 ]
 
 
