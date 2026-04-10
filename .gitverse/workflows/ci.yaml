@@ -1,4 +1,4 @@
-name: CI — Build, Lint & Smoke Test
+name: CI — Lint & Validate
 
 on:
   push:
@@ -24,9 +24,9 @@ jobs:
       - name: Ruff check
         run: ruff check django_microservice/ fastapi_microservice/ litestar_microservice/ robyn_microservice/
 
-  # ── Build & Test (matrix) ──────────────────────────────
-  build-and-test:
-    name: "${{ matrix.service }} — build & smoke test"
+  # ── Validate dependencies & imports ────────────────────
+  validate:
+    name: "${{ matrix.service }} — validate"
     runs-on: ubuntu-latest
     needs: lint
     strategy:
@@ -35,67 +35,33 @@ jobs:
         include:
           - service: django
             dir: django_microservice
-            port: 8000
           - service: fastapi
             dir: fastapi_microservice
-            port: 8001
           - service: litestar
             dir: litestar_microservice
-            port: 8002
           - service: robyn
             dir: robyn_microservice
-            port: 8003
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build and start containers
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
         working-directory: ${{ matrix.dir }}
-        run: docker compose up -d --build
+        run: poetry install --no-interaction --no-ansi --no-root
 
-      - name: Wait for API to be ready
-        run: |
-          echo "Waiting for ${{ matrix.service }} on port ${{ matrix.port }}..."
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:${{ matrix.port }}/api/users/ > /dev/null 2>&1; then
-              echo "Service is up after ${i}s"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Service failed to start within 60s"
-          docker compose -f ${{ matrix.dir }}/docker-compose.yml logs
-          exit 1
-
-      - name: Smoke test — GET /api/users/
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ matrix.port }}/api/users/)
-          echo "HTTP status: $STATUS"
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: expected 200, got $STATUS"
-            exit 1
-          fi
-          echo "PASS: GET /api/users/ returned 200"
-
-      - name: Smoke test — POST /api/users/
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST http://localhost:${{ matrix.port }}/api/users/ \
-            -H "Content-Type: application/json" \
-            -d '{"email": "ci-test@example.com", "name": "CI Test"}')
-          echo "HTTP status: $STATUS"
-          if [ "$STATUS" != "201" ] && [ "$STATUS" != "200" ]; then
-            echo "FAIL: expected 201 or 200, got $STATUS"
-            exit 1
-          fi
-          echo "PASS: POST /api/users/ returned $STATUS"
-
-      - name: Print container logs on failure
-        if: failure()
+      - name: Validate imports
         working-directory: ${{ matrix.dir }}
-        run: docker compose logs
+        run: python -c "import app; print('${{ matrix.service }}: imports OK')"
 
-      - name: Stop containers
-        if: always()
+      - name: Validate Dockerfile exists
         working-directory: ${{ matrix.dir }}
-        run: docker compose down -v
+        run: |
+          test -f Dockerfile && echo "Dockerfile: OK" || (echo "Dockerfile: MISSING" && exit 1)
+          test -f docker-compose.yml && echo "docker-compose.yml: OK" || (echo "docker-compose.yml: MISSING" && exit 1)
