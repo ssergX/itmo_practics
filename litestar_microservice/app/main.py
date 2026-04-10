@@ -3,10 +3,12 @@ import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+import litestar as _litestar
 from litestar import Litestar, get, post, Response
 from litestar.di import Provide
 from litestar.middleware.base import AbstractMiddleware
 from litestar.types import Receive, Scope, Send
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import Base, engine, SessionLocal
@@ -14,6 +16,8 @@ from . import schemas, crud
 from .monitoring import snapshot, log_line
 
 logging.basicConfig(level=logging.INFO)
+
+_start_time = time.time()
 
 
 async def provide_session() -> AsyncGenerator[AsyncSession, None]:
@@ -28,18 +32,27 @@ async def lifespan(app: Litestar) -> AsyncGenerator[None, None]:
     yield
 
 
-class MetricsMiddleware(AbstractMiddleware):
+class StructuredLoggingMiddleware(AbstractMiddleware):
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 
+        import uuid, json
+        headers = dict(scope.get("headers", []))
+        request_id = headers.get(b"x-request-id", b"").decode() or str(uuid.uuid4())
         start = time.perf_counter()
         await self.app(scope, receive, send)
-        m = snapshot(start)
-        method = scope.get("method", "?")
-        path = scope.get("path", "?")
-        log_line(method, path, m)
+        elapsed = (time.perf_counter() - start) * 1000
+        log_entry = {
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "service": "litestar",
+            "request_id": request_id,
+            "method": scope.get("method", "?"),
+            "path": scope.get("path", "?"),
+            "elapsed_ms": round(elapsed, 2),
+        }
+        logging.info(json.dumps(log_entry, ensure_ascii=False))
 
 
 @get("/api/users/")
@@ -74,9 +87,26 @@ async def post_order(data: schemas.OrderCreate, session: AsyncSession) -> schema
     return schemas.OrderCreated(order_id=order.id)
 
 
+@get("/health/")
+async def health_check(session: AsyncSession) -> dict:
+    db_ok = False
+    try:
+        await session.execute(text("SELECT 1"))
+        db_ok = True
+    except Exception:
+        pass
+    return {
+        "status": "ok" if db_ok else "degraded",
+        "service": "litestar",
+        "framework": f"Litestar {_litestar.__version__}",
+        "database": "connected" if db_ok else "disconnected",
+        "uptime_s": round(time.time() - _start_time, 1),
+    }
+
+
 app = Litestar(
-    route_handlers=[get_users, post_user, post_order],
+    route_handlers=[get_users, post_user, post_order, health_check],
     dependencies={"session": Provide(provide_session)},
     lifespan=[lifespan],
-    middleware=[MetricsMiddleware],
+    middleware=[StructuredLoggingMiddleware],
 )

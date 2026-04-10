@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 # Для API-бенчмарка оставляем только необходимый минимум.
 # Sessions, CSRF, Auth, Messages, Clickjacking — не нужны для REST API.
 MIDDLEWARE = [
+    'app.middleware.StructuredLoggingMiddleware',
     'django.middleware.common.CommonMiddleware',
 ]
 
@@ -62,6 +63,10 @@ LOGGING = {
     },
     "loggers": {
         "app": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "app.requests": {
             "handlers": ["console"],
             "level": "INFO",
         },

@@ -1,6 +1,8 @@
 import logging
 import time
+import fastapi
 from fastapi import FastAPI, Depends, HTTPException, Request
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import Base, engine, get_session
@@ -11,6 +13,8 @@ logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="FastAPI REST Prototype")
 
+_start_time = time.time()
+
 
 @app.on_event("startup")
 async def startup():
@@ -18,12 +22,41 @@ async def startup():
         await conn.run_sync(Base.metadata.create_all)
 
 
+@app.get("/health/")
+async def health_check(session: AsyncSession = Depends(get_session)):
+    db_ok = False
+    try:
+        await session.execute(text("SELECT 1"))
+        db_ok = True
+    except Exception:
+        pass
+    return {
+        "status": "ok" if db_ok else "degraded",
+        "service": "fastapi",
+        "framework": f"FastAPI {fastapi.__version__}",
+        "database": "connected" if db_ok else "disconnected",
+        "uptime_s": round(time.time() - _start_time, 1),
+    }
+
+
 @app.middleware("http")
-async def metrics_middleware(request: Request, call_next):
+async def structured_logging_middleware(request: Request, call_next):
+    import uuid, json
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     start = time.perf_counter()
     response = await call_next(request)
-    m = snapshot(start)
-    log_line(request.method, request.url.path, m)
+    elapsed = (time.perf_counter() - start) * 1000
+    log_entry = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "service": "fastapi",
+        "request_id": request_id,
+        "method": request.method,
+        "path": request.url.path,
+        "status": response.status_code,
+        "elapsed_ms": round(elapsed, 2),
+    }
+    logging.info(json.dumps(log_entry, ensure_ascii=False))
+    response.headers["X-Request-ID"] = request_id
     return response
 
 
