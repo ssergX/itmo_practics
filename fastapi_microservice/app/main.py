@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import Base, engine, get_session
 from . import schemas, crud
-from .monitoring import snapshot, log_line
 
 logging.basicConfig(level=logging.INFO)
 
@@ -41,7 +40,8 @@ async def health_check(session: AsyncSession = Depends(get_session)):
 
 @app.middleware("http")
 async def structured_logging_middleware(request: Request, call_next):
-    import uuid, json
+    import uuid
+    import json
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     start = time.perf_counter()
     response = await call_next(request)

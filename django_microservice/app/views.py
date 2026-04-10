@@ -74,8 +74,6 @@ class UserListOptimizedView(APIView):
 
 class AnalyticsView(APIView):
     async def get(self, request):
-        from django.db.models.functions import TruncDate
-
         user_count = await User.objects.acount()
         order_stats = await Order.objects.aaggregate(
             total_orders=Count("id"),

@@ -10,7 +10,6 @@ from sqlalchemy import text
 
 from .db import Base, engine, SessionLocal
 from . import crud
-from .monitoring import snapshot, log_line
 
 logging.basicConfig(level=logging.INFO)
 

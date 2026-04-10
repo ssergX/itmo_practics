@@ -13,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import Base, engine, SessionLocal
 from . import schemas, crud
-from .monitoring import snapshot, log_line
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,7 +37,8 @@ class StructuredLoggingMiddleware(AbstractMiddleware):
             await self.app(scope, receive, send)
             return
 
-        import uuid, json
+        import uuid
+        import json
         headers = dict(scope.get("headers", []))
         request_id = headers.get(b"x-request-id", b"").decode() or str(uuid.uuid4())
         start = time.perf_counter()
