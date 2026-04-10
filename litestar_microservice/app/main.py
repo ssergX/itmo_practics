@@ -73,7 +73,8 @@ async def get_users(session: AsyncSession, page: int | None = None, size: int | 
         }
         return Response(content=orjson.dumps(data, default=lambda o: o.__dict__), media_type="application/json")
     users = await crud.list_users(session)
-    return [_user_to_schema(u) for u in users]
+    data = [_user_to_schema(u) for u in users]
+    return Response(content=orjson.dumps(data, default=lambda o: o.__dict__), media_type="application/json")
 
 
 @get("/api/users/optimized/")
