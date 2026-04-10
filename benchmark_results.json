@@ -1,146 +1,142 @@
-[
-  {
-    "test": "GET_latency",
-    "service": "Django",
-    "avg": 218.59,
-    "p50": 210.17,
-    "p95": 287.4,
-    "p99": 308.58,
-    "min": 160.64,
-    "max": 343.6,
-    "ok": 50
+{
+  "Django": {
+    "get_latency": {
+      "avg": 238.73,
+      "p50": 236.96,
+      "p95": 270.49,
+      "p99": 282.57,
+      "min": 213.17,
+      "max": 288.31,
+      "ok": 200
+    },
+    "get_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 136.63,
+      "rps": 3.66
+    },
+    "post_latency": {
+      "avg": 51.28,
+      "p50": 50.33,
+      "p95": 59.92,
+      "p99": 61.4,
+      "ok": 100
+    },
+    "post_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 3.26,
+      "rps": 153.52
+    },
+    "all_runs_get_avg": [
+      221.43,
+      238.73,
+      281.67
+    ]
   },
-  {
-    "test": "GET_latency",
-    "service": "FastAPI",
-    "avg": 290.04,
-    "p50": 273.47,
-    "p95": 428.75,
-    "p99": 443.42,
-    "min": 206.79,
-    "max": 444.01,
-    "ok": 50
+  "FastAPI": {
+    "get_latency": {
+      "avg": 288.14,
+      "p50": 287.29,
+      "p95": 320.43,
+      "p99": 337.22,
+      "min": 231.17,
+      "max": 343.19,
+      "ok": 200
+    },
+    "get_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 202.06,
+      "rps": 2.47
+    },
+    "post_latency": {
+      "avg": 54.12,
+      "p50": 51.92,
+      "p95": 60.8,
+      "p99": 61.49,
+      "ok": 100
+    },
+    "post_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 2.91,
+      "rps": 171.74
+    },
+    "all_runs_get_avg": [
+      249.99,
+      288.14,
+      358.2
+    ]
   },
-  {
-    "test": "GET_latency",
-    "service": "Litestar",
-    "avg": 163.12,
-    "p50": 159.02,
-    "p95": 205.21,
-    "p99": 211.15,
-    "min": 123.74,
-    "max": 381.8,
-    "ok": 50
+  "Litestar": {
+    "get_latency": {
+      "avg": 178.94,
+      "p50": 177.12,
+      "p95": 225.95,
+      "p99": 238.02,
+      "min": 136.17,
+      "max": 344.29,
+      "ok": 200
+    },
+    "get_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 120.92,
+      "rps": 4.13
+    },
+    "post_latency": {
+      "avg": 50.81,
+      "p50": 50.15,
+      "p95": 58.87,
+      "p99": 59.54,
+      "ok": 100
+    },
+    "post_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 2.31,
+      "rps": 216.71
+    },
+    "all_runs_get_avg": [
+      141.6,
+      178.94,
+      198.04
+    ]
   },
-  {
-    "test": "GET_latency",
-    "service": "Robyn",
-    "avg": 150.11,
-    "p50": 151.39,
-    "p95": 175.77,
-    "p99": 186.61,
-    "min": 118.64,
-    "max": 202.0,
-    "ok": 50
-  },
-  {
-    "test": "GET_throughput",
-    "service": "Django",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 40.48,
-    "rps": 4.94
-  },
-  {
-    "test": "GET_throughput",
-    "service": "FastAPI",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 67.53,
-    "rps": 2.96
-  },
-  {
-    "test": "GET_throughput",
-    "service": "Litestar",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 41.28,
-    "rps": 4.84
-  },
-  {
-    "test": "GET_throughput",
-    "service": "Robyn",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 46.94,
-    "rps": 4.26
-  },
-  {
-    "test": "POST_latency",
-    "service": "Django",
-    "avg": 50.17,
-    "p50": 50.0,
-    "p95": 58.77,
-    "p99": 59.93,
-    "ok": 50
-  },
-  {
-    "test": "POST_latency",
-    "service": "FastAPI",
-    "avg": 53.17,
-    "p50": 50.77,
-    "p95": 61.05,
-    "p99": 69.88,
-    "ok": 50
-  },
-  {
-    "test": "POST_latency",
-    "service": "Litestar",
-    "avg": 51.41,
-    "p50": 50.3,
-    "p95": 59.94,
-    "p99": 60.37,
-    "ok": 50
-  },
-  {
-    "test": "POST_latency",
-    "service": "Robyn",
-    "avg": 50.37,
-    "p50": 50.17,
-    "p95": 59.61,
-    "p99": 60.31,
-    "ok": 50
-  },
-  {
-    "test": "POST_throughput",
-    "service": "Django",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 0.68,
-    "rps": 296.24
-  },
-  {
-    "test": "POST_throughput",
-    "service": "FastAPI",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 0.76,
-    "rps": 261.64
-  },
-  {
-    "test": "POST_throughput",
-    "service": "Litestar",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 0.74,
-    "rps": 271.69
-  },
-  {
-    "test": "POST_throughput",
-    "service": "Robyn",
-    "ok": 200,
-    "fail": 0,
-    "elapsed_s": 0.66,
-    "rps": 301.11
+  "Robyn": {
+    "get_latency": {
+      "avg": 170.75,
+      "p50": 170.5,
+      "p95": 205.78,
+      "p99": 218.82,
+      "min": 133.12,
+      "max": 222.28,
+      "ok": 200
+    },
+    "get_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 137.99,
+      "rps": 3.62
+    },
+    "post_latency": {
+      "avg": 51.04,
+      "p50": 50.26,
+      "p95": 58.92,
+      "p99": 59.8,
+      "ok": 100
+    },
+    "post_throughput": {
+      "ok": 500,
+      "fail": 0,
+      "elapsed_s": 2.32,
+      "rps": 215.19
+    },
+    "all_runs_get_avg": [
+      145.79,
+      170.75,
+      184.54
+    ]
   }
-]
+}
