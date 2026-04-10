@@ -19,6 +19,15 @@ class UserOut(BaseModel):
     id: int
     email: EmailStr
     name: str
+    orders: List[OrderOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserCreated(BaseModel):
+    id: int
+    email: EmailStr
+    name: str
 
     model_config = ConfigDict(from_attributes=True)
 

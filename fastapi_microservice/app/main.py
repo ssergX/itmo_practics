@@ -32,7 +32,7 @@ async def get_users(session: AsyncSession = Depends(get_session)):
     return await crud.list_users(session)
 
 
-@app.post("/api/users/", response_model=schemas.UserOut, status_code=201)
+@app.post("/api/users/", response_model=schemas.UserCreated, status_code=201)
 async def post_user(payload: schemas.UserCreate, session: AsyncSession = Depends(get_session)):
     user = await crud.create_user(session, payload.email, payload.name)
     return user

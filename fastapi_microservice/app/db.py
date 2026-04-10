@@ -7,7 +7,7 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://postgres:postgres@localhost:5433/fastapi_db",
 )
 
-engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_async_engine(DATABASE_URL, pool_pre_ping=True, pool_size=20, max_overflow=0)
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 

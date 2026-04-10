@@ -1,0 +1,146 @@
+[
+  {
+    "test": "GET_latency",
+    "service": "Django",
+    "avg": 218.59,
+    "p50": 210.17,
+    "p95": 287.4,
+    "p99": 308.58,
+    "min": 160.64,
+    "max": 343.6,
+    "ok": 50
+  },
+  {
+    "test": "GET_latency",
+    "service": "FastAPI",
+    "avg": 290.04,
+    "p50": 273.47,
+    "p95": 428.75,
+    "p99": 443.42,
+    "min": 206.79,
+    "max": 444.01,
+    "ok": 50
+  },
+  {
+    "test": "GET_latency",
+    "service": "Litestar",
+    "avg": 163.12,
+    "p50": 159.02,
+    "p95": 205.21,
+    "p99": 211.15,
+    "min": 123.74,
+    "max": 381.8,
+    "ok": 50
+  },
+  {
+    "test": "GET_latency",
+    "service": "Robyn",
+    "avg": 150.11,
+    "p50": 151.39,
+    "p95": 175.77,
+    "p99": 186.61,
+    "min": 118.64,
+    "max": 202.0,
+    "ok": 50
+  },
+  {
+    "test": "GET_throughput",
+    "service": "Django",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 40.48,
+    "rps": 4.94
+  },
+  {
+    "test": "GET_throughput",
+    "service": "FastAPI",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 67.53,
+    "rps": 2.96
+  },
+  {
+    "test": "GET_throughput",
+    "service": "Litestar",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 41.28,
+    "rps": 4.84
+  },
+  {
+    "test": "GET_throughput",
+    "service": "Robyn",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 46.94,
+    "rps": 4.26
+  },
+  {
+    "test": "POST_latency",
+    "service": "Django",
+    "avg": 50.17,
+    "p50": 50.0,
+    "p95": 58.77,
+    "p99": 59.93,
+    "ok": 50
+  },
+  {
+    "test": "POST_latency",
+    "service": "FastAPI",
+    "avg": 53.17,
+    "p50": 50.77,
+    "p95": 61.05,
+    "p99": 69.88,
+    "ok": 50
+  },
+  {
+    "test": "POST_latency",
+    "service": "Litestar",
+    "avg": 51.41,
+    "p50": 50.3,
+    "p95": 59.94,
+    "p99": 60.37,
+    "ok": 50
+  },
+  {
+    "test": "POST_latency",
+    "service": "Robyn",
+    "avg": 50.37,
+    "p50": 50.17,
+    "p95": 59.61,
+    "p99": 60.31,
+    "ok": 50
+  },
+  {
+    "test": "POST_throughput",
+    "service": "Django",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 0.68,
+    "rps": 296.24
+  },
+  {
+    "test": "POST_throughput",
+    "service": "FastAPI",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 0.76,
+    "rps": 261.64
+  },
+  {
+    "test": "POST_throughput",
+    "service": "Litestar",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 0.74,
+    "rps": 271.69
+  },
+  {
+    "test": "POST_throughput",
+    "service": "Robyn",
+    "ok": 200,
+    "fail": 0,
+    "elapsed_s": 0.66,
+    "rps": 301.11
+  }
+]

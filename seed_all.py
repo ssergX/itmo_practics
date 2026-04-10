@@ -12,7 +12,7 @@ from psycopg.rows import dict_row
 
 DATABASES = {
     "django":   "postgresql://app:app@localhost:5433/app",
-    "fastapi":  "postgresql://postgres:postgres@localhost:5433/fastapi_db",
+    "fastapi":  "postgresql://postgres:postgres@localhost:5436/fastapi_db",
     "litestar": "postgresql://postgres:postgres@localhost:5434/litestar_db",
     "robyn":    "postgresql://postgres:postgres@localhost:5435/robyn_db",
 }

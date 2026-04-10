@@ -1,19 +1,9 @@
-import orjson
-from django.http import HttpResponse
 from adrf.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .models import User, Order
-
-
-def orjson_response(data, status_code=200):
-    """JsonResponse на orjson — в ~3-5x быстрее стандартного json.dumps."""
-    return HttpResponse(
-        orjson.dumps(data),
-        content_type="application/json",
-        status=status_code,
-    )
+from .serializers import UserSerializer
 
 
 class UserListCreateView(APIView):
@@ -23,32 +13,12 @@ class UserListCreateView(APIView):
     """
 
     async def get(self, request):
-        # .values() возвращает dict, минуя создание Model-объектов — основной выигрыш
-        users_qs = User.objects.order_by("id").values("id", "email", "name")
+        # ORM-объекты с prefetch_related — стандартный Django-паттерн
+        users_qs = User.objects.prefetch_related("orders").order_by("id")
         users = [u async for u in users_qs]
 
-        # Собираем orders одним запросом, группируем в Python
-        user_ids = [u["id"] for u in users]
-        orders_qs = (
-            Order.objects
-            .filter(user_id__in=user_ids)
-            .values("id", "user_id", "total_price")
-        )
-        orders_by_user = {}
-        async for o in orders_qs:
-            orders_by_user.setdefault(o["user_id"], []).append(
-                {"id": o["id"], "total_price": float(o["total_price"])}
-            )
-
-        data = [
-            {
-                **u,
-                "orders": orders_by_user.get(u["id"], []),
-            }
-            for u in users
-        ]
-
-        return orjson_response(data)
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
     async def post(self, request):
         email = request.data.get("email")
@@ -59,9 +29,9 @@ class UserListCreateView(APIView):
 
         user = await User.objects.acreate(email=email, name=name)
 
-        return orjson_response(
+        return Response(
             {"id": user.id, "email": user.email, "name": user.name},
-            status_code=201,
+            status=status.HTTP_201_CREATED,
         )
 
 
@@ -78,4 +48,4 @@ class OrderCreateView(APIView):
 
         order = await Order.objects.acreate(user_id=user_id, total_price=price)
 
-        return orjson_response({"order_id": order.id}, status_code=201)
+        return Response({"order_id": order.id}, status=status.HTTP_201_CREATED)
