@@ -3,10 +3,10 @@ import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from litestar import Litestar, get, post, Request, Response
+from litestar import Litestar, get, post, Response
 from litestar.di import Provide
 from litestar.middleware.base import AbstractMiddleware
-from litestar.types import ASGIApp, Receive, Scope, Send
+from litestar.types import Receive, Scope, Send
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import Base, engine, SessionLocal
