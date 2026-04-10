@@ -60,9 +60,32 @@ async def structured_logging_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/api/users/", response_model=list[schemas.UserOut])
-async def get_users(session: AsyncSession = Depends(get_session)):
-    return await crud.list_users(session)
+@app.get("/api/users/")
+async def get_users(
+    page: int = None, size: int = None,
+    session: AsyncSession = Depends(get_session),
+):
+    if page and size:
+        total, users = await crud.list_users_paginated(session, page, size)
+        return {
+            "page": page, "size": size, "total": total,
+            "data": [schemas.UserOut.model_validate(u) for u in users],
+        }
+    users = await crud.list_users(session)
+    return [schemas.UserOut.model_validate(u) for u in users]
+
+
+@app.get("/api/users/optimized/")
+async def get_users_optimized(session: AsyncSession = Depends(get_session)):
+    import orjson
+    from fastapi.responses import Response as FastAPIResponse
+    data = await crud.list_users_optimized(session)
+    return FastAPIResponse(content=orjson.dumps(data), media_type="application/json")
+
+
+@app.get("/api/analytics/")
+async def get_analytics(session: AsyncSession = Depends(get_session)):
+    return await crud.get_analytics(session)
 
 
 @app.post("/api/users/", response_model=schemas.UserCreated, status_code=201)

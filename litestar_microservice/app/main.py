@@ -55,21 +55,37 @@ class StructuredLoggingMiddleware(AbstractMiddleware):
         logging.info(json.dumps(log_entry, ensure_ascii=False))
 
 
+def _user_to_schema(u) -> schemas.UserOut:
+    return schemas.UserOut(
+        id=u.id, email=u.email, name=u.name,
+        orders=[schemas.OrderOut(id=o.id, total_price=float(o.total_price)) for o in u.orders],
+    )
+
+
 @get("/api/users/")
-async def get_users(session: AsyncSession) -> list[schemas.UserOut]:
+async def get_users(session: AsyncSession, page: int | None = None, size: int | None = None) -> Response:
+    import orjson
+    if page and size:
+        total, users = await crud.list_users_paginated(session, page, size)
+        data = {
+            "page": page, "size": size, "total": total,
+            "data": [_user_to_schema(u) for u in users],
+        }
+        return Response(content=orjson.dumps(data, default=lambda o: o.__dict__), media_type="application/json")
     users = await crud.list_users(session)
-    return [
-        schemas.UserOut(
-            id=u.id,
-            email=u.email,
-            name=u.name,
-            orders=[
-                schemas.OrderOut(id=o.id, total_price=float(o.total_price))
-                for o in u.orders
-            ],
-        )
-        for u in users
-    ]
+    return [_user_to_schema(u) for u in users]
+
+
+@get("/api/users/optimized/")
+async def get_users_optimized(session: AsyncSession) -> Response:
+    import orjson
+    data = await crud.list_users_optimized(session)
+    return Response(content=orjson.dumps(data), media_type="application/json")
+
+
+@get("/api/analytics/")
+async def get_analytics(session: AsyncSession) -> dict:
+    return await crud.get_analytics(session)
 
 
 @post("/api/users/", status_code=201)
@@ -105,7 +121,7 @@ async def health_check(session: AsyncSession) -> dict:
 
 
 app = Litestar(
-    route_handlers=[get_users, post_user, post_order, health_check],
+    route_handlers=[get_users, get_users_optimized, get_analytics, post_user, post_order, health_check],
     dependencies={"session": Provide(provide_session)},
     lifespan=[lifespan],
     middleware=[StructuredLoggingMiddleware],

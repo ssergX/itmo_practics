@@ -82,30 +82,61 @@ def get_request_id(request: Request):
     return str(uuid.uuid4())
 
 
+def _users_to_dicts(users):
+    return [
+        {
+            "id": u.id, "email": u.email, "name": u.name,
+            "orders": [{"id": o.id, "total_price": float(o.total_price)} for o in u.orders],
+        }
+        for u in users
+    ]
+
+
 @app.get("/api/users/")
 async def get_users(request: Request):
     request_id = get_request_id(request)
     start = time.perf_counter()
 
-    async with SessionLocal() as session:
-        users = await crud.list_users(session)
+    # Pagination support
+    page = request.query_params.get("page")
+    size = request.query_params.get("size")
 
-    data = [
-        {
-            "id": u.id,
-            "email": u.email,
-            "name": u.name,
-            "orders": [
-                {"id": o.id, "total_price": float(o.total_price)}
-                for o in u.orders
-            ],
-        }
-        for u in users
-    ]
+    async with SessionLocal() as session:
+        if page and size:
+            total, users = await crud.list_users_paginated(session, int(page), int(size))
+            data = {"page": int(page), "size": int(size), "total": total, "data": _users_to_dicts(users)}
+        else:
+            users = await crud.list_users(session)
+            data = _users_to_dicts(users)
 
     elapsed = (time.perf_counter() - start) * 1000
     structured_log(request_id, "GET", "/api/users/", 200, elapsed)
+    return json_response(data)
 
+
+@app.get("/api/users/optimized/")
+async def get_users_optimized(request: Request):
+    request_id = get_request_id(request)
+    start = time.perf_counter()
+
+    async with SessionLocal() as session:
+        data = await crud.list_users_optimized(session)
+
+    elapsed = (time.perf_counter() - start) * 1000
+    structured_log(request_id, "GET", "/api/users/optimized/", 200, elapsed)
+    return json_response(data)
+
+
+@app.get("/api/analytics/")
+async def get_analytics(request: Request):
+    request_id = get_request_id(request)
+    start = time.perf_counter()
+
+    async with SessionLocal() as session:
+        data = await crud.get_analytics(session)
+
+    elapsed = (time.perf_counter() - start) * 1000
+    structured_log(request_id, "GET", "/api/analytics/", 200, elapsed)
     return json_response(data)
 
 
