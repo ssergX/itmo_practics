@@ -30,6 +30,9 @@ jobs:
     name: "${{ matrix.service }} — build & smoke test"
     runs-on: self-hosted
     needs: lint
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
