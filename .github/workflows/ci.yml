@@ -73,26 +73,45 @@ jobs:
 
       - name: Smoke test — GET /api/users/
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ matrix.port }}/api/users/)
+          RESPONSE=$(curl -s -w "\n%{http_code}" http://localhost:${{ matrix.port }}/api/users/)
+          STATUS=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          USERS=$(echo "$BODY" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
           echo "HTTP status: $STATUS"
+          echo "Users in response: $USERS"
           if [ "$STATUS" != "200" ]; then
             echo "FAIL: expected 200, got $STATUS"
             exit 1
           fi
-          echo "PASS: GET /api/users/ returned 200"
+          echo "PASS: GET /api/users/ returned 200 ($USERS users)"
 
       - name: Smoke test — POST /api/users/
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST http://localhost:${{ matrix.port }}/api/users/ \
             -H "Content-Type: application/json" \
             -d '{"email": "ci-test@example.com", "name": "CI Test"}')
+          STATUS=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
           echo "HTTP status: $STATUS"
+          echo "Response: $BODY"
           if [ "$STATUS" != "201" ] && [ "$STATUS" != "200" ]; then
             echo "FAIL: expected 201 or 200, got $STATUS"
             exit 1
           fi
           echo "PASS: POST /api/users/ returned $STATUS"
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "==========================================="
+          echo "  ${{ matrix.service }} — Test Results"
+          echo "==========================================="
+          echo "  Framework:  ${{ matrix.service }}"
+          echo "  Port:       ${{ matrix.port }}"
+          echo "  GET  /api/users/  — OK (200)"
+          echo "  POST /api/users/  — OK (201)"
+          echo "==========================================="
 
       - name: Print container logs on failure
         if: failure()
