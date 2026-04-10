@@ -214,6 +214,23 @@ robyn_microservice/
 - **Connection pool** — psycopg3 native pool
 - **DEBUG = False** — отключён SQL-логгинг
 
+## CI/CD
+
+Проект использует **GitVerse Actions** для автоматической проверки при каждом push и pull request.
+
+| Этап | Что делает |
+|------|-----------|
+| **Lint** | Проверка стиля кода (ruff) по всем 4 микросервисам |
+| **Build & Smoke Test** | Сборка Docker-образов + запуск контейнеров + HTTP smoke-тесты (`GET /api/users/`, `POST /api/users/`) |
+
+Сборка выполняется параллельно для всех фреймворков (матричная стратегия).
+
+Конфигурация: [`.gitverse/workflows/ci.yaml`](.gitverse/workflows/ci.yaml)
+
+## Развёртывание
+
+Полная пошаговая инструкция по развёртыванию с аппаратными и программными требованиями: **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
 ## Лицензия
 
 Выпускная квалификационная работа, ИТМО 2026.
